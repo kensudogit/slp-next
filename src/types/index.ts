@@ -1,3 +1,4 @@
+// WordPressの投稿データの型定義
 export interface WpPost {
   ID: number;
   post_title: string;
@@ -15,6 +16,7 @@ export interface WpPost {
   comment_count: number;
 }
 
+// WordPressの投稿メタデータの型定義
 export interface WpPostMeta {
   meta_id: number;
   post_id: number;
@@ -22,6 +24,7 @@ export interface WpPostMeta {
   meta_value: string;
 }
 
+// 検索結果の型定義
 export interface SearchResult {
   id: string;
   title: string;
@@ -33,6 +36,7 @@ export interface SearchResult {
   post_date: string;
 }
 
+// 検索APIのレスポンス型定義
 export interface SearchResponse {
   status: string;
   results: SearchResult[];
@@ -46,6 +50,7 @@ export interface SearchResponse {
   };
 }
 
+// システムのヘルスステータスの型定義
 export interface HealthStatus {
   dynamodb: boolean;
   s3: boolean;
@@ -57,6 +62,7 @@ export interface HealthStatus {
   };
 }
 
+// エラーレスポンスの型定義
 export interface ErrorResponse {
   statusCode: number;
   headers: {
@@ -69,10 +75,11 @@ export interface ErrorResponse {
   };
 }
 
+// 検索パラメータの型定義
 export interface SearchParams {
-  keyword?: string;
-  site_code?: number[];
-  page?: number;
-  per_page?: number;
-  limit?: number;
+  keyword: string;
+  site_code: number[];
+  page: number;
+  per_page: number;
+  limit: number;
 } 

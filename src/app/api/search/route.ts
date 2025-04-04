@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SearchParams, SearchResponse, ErrorResponse } from '@/types';
+import { SearchParams, SearchResponse, ErrorResponse, SearchResult } from '@/types';
 import { ContentManager } from '@/lib/content-manager';
 import { ExternalSiteManager } from '@/lib/external-site-manager';
 
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     // Extract search parameters
     const params: SearchParams = {
       keyword: body.keyword || body.word || '',
-      site_code: body.category ? [parseInt(body.category)] : [],
+      site_code: body.category ? [parseInt(body.category)] : [1, 2, 3, 4],
       page: parseInt(body.page || '1'),
       per_page: parseInt(body.per_page || '10'),
       limit: parseInt(body.limit || '0')
@@ -22,33 +22,29 @@ export async function POST(request: NextRequest) {
     const externalSiteManager = new ExternalSiteManager();
 
     // Perform search
-    const results = await contentManager.searchContent(
-      params.keyword,
-      params.site_code,
-      params.limit
-    );
+    const results = await contentManager.search(params.keyword);
 
     // If external sites are included in the search
     if (params.site_code.includes(4)) {
       const externalResults = await externalSiteManager.searchContent(params.keyword);
-      results.results = [...results.results, ...externalResults];
+      results.push(...externalResults);
     }
 
     // Sort results by date
-    results.results.sort((a, b) => 
+    results.sort((a: SearchResult, b: SearchResult) => 
       new Date(b.post_date).getTime() - new Date(a.post_date).getTime()
     );
 
     // Apply pagination
     const start = (params.page - 1) * params.per_page;
     const end = start + params.per_page;
-    const paginatedResults = results.results.slice(start, end);
+    const paginatedResults = results.slice(start, end);
 
     const response: SearchResponse = {
       status: 'success',
       results: paginatedResults,
       pagination: {
-        total: results.results.length,
+        total: results.length,
         page: params.page,
         per_page: params.per_page
       },

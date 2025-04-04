@@ -1,7 +1,10 @@
+// 外部サイト管理クラス
+// S3に保存された外部サイトのコンテンツを検索・取得する機能を提供
 import { SearchResult } from '../types';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { Cache } from './cache';
 
+// 外部サイトの設定を定義するインターフェース
 interface SiteConfig {
   name: string;
   bucket: string;
@@ -14,6 +17,8 @@ export class ExternalSiteManager {
   private cache: Cache;
   private sites: SiteConfig[];
 
+  // コンストラクタ
+  // S3クライアント、キャッシュ、サイト設定を初期化
   constructor() {
     this.s3Client = new S3Client({});
     this.cache = new Cache();
@@ -39,6 +44,7 @@ export class ExternalSiteManager {
     ];
   }
 
+  // キーワードに基づいて外部サイトのコンテンツを検索
   async searchContent(keyword: string = ''): Promise<SearchResult[]> {
     try {
       const cacheKey = `external_search_${keyword}`;
@@ -61,6 +67,7 @@ export class ExternalSiteManager {
     }
   }
 
+  // 特定のサイトのコンテンツを検索
   private async searchSiteContent(site: SiteConfig, keyword: string): Promise<SearchResult[]> {
     try {
       const indexMatches = await this.searchIndex(site, keyword);
@@ -71,6 +78,7 @@ export class ExternalSiteManager {
     }
   }
 
+  // サイトのインデックスを検索して一致するページIDを取得
   private async searchIndex(site: SiteConfig, keyword: string): Promise<string[]> {
     const matches = new Set<string>();
     const command = new GetObjectCommand({
@@ -91,6 +99,7 @@ export class ExternalSiteManager {
     return Array.from(matches);
   }
 
+  // 一致したページIDのコンテンツを取得
   private async fetchMatchedContents(site: SiteConfig, matches: string[]): Promise<SearchResult[]> {
     const results: SearchResult[] = [];
     const chunkSize = 20;
@@ -105,6 +114,7 @@ export class ExternalSiteManager {
     return results;
   }
 
+  // 特定のページのコンテンツを取得
   private async fetchContent(site: SiteConfig, pageId: string): Promise<SearchResult | null> {
     try {
       const command = new GetObjectCommand({
@@ -131,6 +141,7 @@ export class ExternalSiteManager {
     }
   }
 
+  // 外部サイトのヘルスチェックを実行
   async checkHealth(): Promise<boolean> {
     try {
       // 外部サイトのヘルスチェックを実装

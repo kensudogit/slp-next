@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { HealthStatus } from '@/types';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { S3Client } from '@aws-sdk/client-s3';
+import { DynamoDBClient, ListTablesCommand } from '@aws-sdk/client-dynamodb';
+import { S3Client, ListBucketsCommand } from '@aws-sdk/client-s3';
 
 export async function GET() {
   try {
@@ -16,7 +16,7 @@ export async function GET() {
     // Check DynamoDB connection
     try {
       const dynamoDb = new DynamoDBClient({});
-      await dynamoDb.send(new DynamoDBClient({}).config.requestHandler);
+      await dynamoDb.send(new ListTablesCommand({}));
       healthStatus.dynamodb = true;
     } catch (error) {
       console.error('DynamoDB health check failed:', error);
@@ -25,7 +25,7 @@ export async function GET() {
     // Check S3 connection
     try {
       const s3 = new S3Client({});
-      await s3.send(new S3Client({}).config.requestHandler);
+      await s3.send(new ListBucketsCommand({}));
       healthStatus.s3 = true;
     } catch (error) {
       console.error('S3 health check failed:', error);

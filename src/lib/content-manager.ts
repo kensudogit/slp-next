@@ -1,3 +1,5 @@
+// コンテンツ管理クラス
+// 投稿の検索、取得、キャッシュ管理などの機能を提供
 import { WpPost, SearchResult, HealthStatus } from '../types';
 import { Cache } from './cache';
 import { ExternalSiteManager } from './external-site-manager';
@@ -6,11 +8,14 @@ export class ContentManager {
   private cache: Cache;
   private externalSiteManager: ExternalSiteManager;
 
+  // コンストラクタ
+  // キャッシュと外部サイト管理クラスのインスタンスを初期化
   constructor() {
     this.cache = new Cache();
     this.externalSiteManager = new ExternalSiteManager();
   }
 
+  // 検索クエリに基づいて投稿を検索
   async search(query: string): Promise<SearchResult[]> {
     // キャッシュから検索結果を取得
     const cachedResults = await this.cache.get(`search:${query}`);
@@ -32,6 +37,7 @@ export class ContentManager {
     return results;
   }
 
+  // 投稿を取得
   private async getPosts(): Promise<WpPost[]> {
     // キャッシュから投稿を取得
     const cachedPosts = await this.cache.get('posts');
@@ -48,17 +54,20 @@ export class ContentManager {
     return posts;
   }
 
+  // データベースから投稿を取得
   private async fetchPostsFromDatabase(): Promise<WpPost[]> {
     // データベースから投稿を取得するロジックを実装
     // この例では空の配列を返す
     return [];
   }
 
+  // 投稿が検索クエリに一致するかチェック
   private matchesQuery(post: WpPost, query: string): boolean {
     const searchText = `${post.post_title} ${post.post_content} ${post.post_excerpt}`.toLowerCase();
     return searchText.includes(query.toLowerCase());
   }
 
+  // 投稿から検索結果オブジェクトを作成
   private createSearchResult(post: WpPost, query: string): SearchResult {
     return {
       id: post.ID.toString(),
@@ -72,16 +81,19 @@ export class ContentManager {
     };
   }
 
+  // 投稿のスコアを計算
   private calculateScore(post: WpPost, query: string): number {
     // スコア計算ロジックを実装
     return 1;
   }
 
+  // テキスト内の検索クエリをハイライト
   private highlightText(text: string, query: string): string {
     // テキストハイライトロジックを実装
     return text;
   }
 
+  // システムのヘルスチェックを実行
   async checkHealth(): Promise<HealthStatus> {
     const checks = {
       database: await this.checkDatabase(),
@@ -98,6 +110,7 @@ export class ContentManager {
     };
   }
 
+  // データベースのヘルスチェック
   private async checkDatabase(): Promise<boolean> {
     try {
       // データベース接続チェックを実装
@@ -108,6 +121,7 @@ export class ContentManager {
     }
   }
 
+  // S3のヘルスチェック
   private async checkS3(): Promise<boolean> {
     try {
       // S3接続チェックを実装
